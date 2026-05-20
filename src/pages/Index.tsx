@@ -6,6 +6,7 @@ import { QRCodeCanvas } from '@/components/ui/qrcode';
 import { Printer, Zap } from 'lucide-react';
 
 const TIPJAR_IMAGE = 'https://blossom.primal.net/9f7debc14b9df626afbf261c69586e19c98470bc4f47c0e5b969af9a825704d1.png';
+const BITCOIN_BADGE = 'https://blossom.dreamith.to/6aaee5d7b3ef908f0662759a1053466a8d378c86eafee216bb477b0252983bc9.png';
 
 const Index = () => {
   useSeoMeta({
@@ -93,12 +94,12 @@ const Index = () => {
 
               {/* The sticker at screen size */}
               <div className="bg-white rounded-2xl shadow-2xl p-1 border-2 border-dashed border-gray-300">
-                <div className="sticker-preview w-[288px] h-[288px] bg-white rounded-xl flex flex-col items-center justify-center p-4 gap-2 relative overflow-hidden">
+                <div className="sticker-preview w-[288px] h-[288px] bg-white rounded-xl flex flex-col items-center justify-center p-3 gap-1.5 relative overflow-hidden">
                   {/* TipJar image at top */}
                   <img
                     src={TIPJAR_IMAGE}
                     alt="Tip Jar"
-                    className="w-[200px] h-auto object-contain shrink-0"
+                    className="w-[160px] h-auto object-contain shrink-0"
                     crossOrigin="anonymous"
                   />
 
@@ -106,14 +107,22 @@ const Index = () => {
                   <div className="flex-1 flex items-center justify-center">
                     <QRCodeCanvas
                       value={lightningUri}
-                      size={160}
+                      size={140}
                       level="M"
                       className="rounded-lg"
                     />
                   </div>
 
+                  {/* Bitcoin Lightning Accepted badge */}
+                  <img
+                    src={BITCOIN_BADGE}
+                    alt="Bitcoin Lightning Accepted Here"
+                    className="w-[150px] h-auto object-contain shrink-0"
+                    crossOrigin="anonymous"
+                  />
+
                   {/* Lightning address at bottom */}
-                  <p className="text-[9px] text-gray-500 font-mono tracking-tight leading-none truncate max-w-full shrink-0">
+                  <p className="text-[8px] text-gray-500 font-mono tracking-tight leading-none truncate max-w-full shrink-0">
                     {generatedAddress}
                   </p>
                 </div>
@@ -175,7 +184,7 @@ const Index = () => {
               alt="Tip Jar"
               crossOrigin="anonymous"
               style={{
-                width: '2in',
+                width: '1.6in',
                 height: 'auto',
                 objectFit: 'contain',
                 flexShrink: 0,
@@ -191,10 +200,23 @@ const Index = () => {
               />
             </div>
 
+            {/* Bitcoin Lightning Accepted badge */}
+            <img
+              src={BITCOIN_BADGE}
+              alt="Bitcoin Lightning Accepted Here"
+              crossOrigin="anonymous"
+              style={{
+                width: '1.6in',
+                height: 'auto',
+                objectFit: 'contain',
+                flexShrink: 0,
+              }}
+            />
+
             {/* Address */}
             <p
               style={{
-                fontSize: '7pt',
+                fontSize: '6pt',
                 color: '#666',
                 fontFamily: 'monospace',
                 letterSpacing: '-0.02em',
