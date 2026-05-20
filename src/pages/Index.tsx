@@ -44,13 +44,9 @@ const Index = () => {
         <div className="max-w-lg mx-auto px-4 pt-12 pb-8">
           {/* Header */}
           <div className="text-center mb-10">
-            <div className="inline-flex items-center gap-2 mb-4">
-              <Zap className="size-8 text-amber-500 fill-amber-500" />
-              <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
-                Zap Jar
-              </h1>
-              <Zap className="size-8 text-amber-500 fill-amber-500" />
-            </div>
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 tracking-tight mb-4">
+              ⚡Lightning Tip Jar ⚡
+            </h1>
             <p className="text-lg text-gray-600 dark:text-gray-400 max-w-md mx-auto">
               Generate a printable sticker with a QR code for your Lightning tip jar
             </p>
