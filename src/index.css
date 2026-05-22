@@ -189,20 +189,12 @@
   }
 }
 
-/* Print styles for 3x3 inch sticker */
+/* Print styles — shared */
 @media print {
-  @page {
-    size: 3in 3in;
-    margin: 0;
-  }
-
   html, body {
     margin: 0 !important;
     padding: 0 !important;
-    width: 3in !important;
-    height: 3in !important;
     background: white !important;
-    overflow: hidden !important;
   }
 
   #root {
@@ -210,9 +202,40 @@
     padding: 0 !important;
   }
 
+  /* QR canvas inside sticker */
   .print-sticker canvas {
     width: 1.6in !important;
     height: 1.6in !important;
     image-rendering: pixelated;
   }
+
+  /* QR canvas inside tri-fold panels */
+  .print-trifold canvas {
+    width: 1.5in !important;
+    height: 1.5in !important;
+    image-rendering: pixelated;
+  }
 }
+
+/* Page size: sticker mode (3x3 square) */
+@media print {
+  body:has(.print-sticker) {
+    width: 3in !important;
+    height: 3in !important;
+    overflow: hidden !important;
+  }
+}
+
+/* Page size: tri-fold mode (landscape letter) */
+@media print {
+  body:has(.print-trifold) {
+    width: 10in !important;
+    height: 3.33in !important;
+  }
+}
+
+/* @page rules — applied via JS-driven class on <html> before print */
+@page {
+  margin: 0;
+}
+
