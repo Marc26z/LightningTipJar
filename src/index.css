@@ -195,11 +195,22 @@
     margin: 0 !important;
     padding: 0 !important;
     background: white !important;
+    height: auto !important;
+    overflow: visible !important;
   }
 
   #root {
     margin: 0 !important;
     padding: 0 !important;
+  }
+
+  /* Prevent any element from creating extra page breaks */
+  .print-sticker,
+  .print-trifold {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    page-break-after: avoid;
+    break-after: avoid;
   }
 
   /* QR canvas inside sticker */
@@ -217,24 +228,7 @@
   }
 }
 
-/* Page size: sticker mode (3x3 square) */
-@media print {
-  body:has(.print-sticker) {
-    width: 3in !important;
-    height: 3in !important;
-    overflow: hidden !important;
-  }
-}
-
-/* Page size: tri-fold mode (landscape letter) */
-@media print {
-  body:has(.print-trifold) {
-    width: 10in !important;
-    height: 3.33in !important;
-  }
-}
-
-/* @page rules — applied via JS-driven class on <html> before print */
+/* Fallback @page */
 @page {
   margin: 0;
 }

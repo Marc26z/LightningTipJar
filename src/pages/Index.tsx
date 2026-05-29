@@ -78,9 +78,10 @@ const Index = () => {
     // Inject a dynamic @page size rule based on mode, then remove after print
     const style = document.createElement('style');
     if (printMode === 'sticker') {
-      style.textContent = '@page { size: 3in 3in; margin: 0; }';
+      // Standard letter page so it prints exactly one page
+      style.textContent = '@page { size: letter; margin: 0; }';
     } else {
-      style.textContent = '@page { size: 10in 3.33in; margin: 0; }';
+      style.textContent = '@page { size: letter landscape; margin: 0.25in; }';
     }
     document.head.appendChild(style);
     window.print();
@@ -259,9 +260,17 @@ const Index = () => {
       {/* ===== PRINT-ONLY LAYOUTS ===== */}
       {generatedAddress && (
         <>
-          {/* Sticker print (3x3 inch) */}
+          {/* Sticker print (3x3 inch on letter page, positioned slightly below top) */}
           {printMode === 'sticker' && (
-            <div className="hidden print:flex print:items-start print:justify-start print:p-0 print:m-0">
+            <div
+              className="hidden print:flex"
+              style={{
+                paddingTop: '1in',
+                paddingLeft: '0.5in',
+                width: '8.5in',
+                boxSizing: 'border-box',
+              }}
+            >
               <div
                 className="print-sticker"
                 style={{
@@ -276,6 +285,8 @@ const Index = () => {
                   backgroundColor: 'white',
                   overflow: 'hidden',
                   boxSizing: 'border-box',
+                  pageBreakAfter: 'avoid',
+                  breakAfter: 'avoid',
                 }}
               >
                 <StickerFace
