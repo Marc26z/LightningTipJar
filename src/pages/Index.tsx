@@ -193,8 +193,8 @@ const Index = () => {
                         />
                       </div>
 
-                      {/* Panel 2: Back face (upside-down so it shows when folded) */}
-                      <div className="w-1/3 h-full flex flex-col items-center justify-center p-2 gap-1 border-r border-dashed border-gray-300 rotate-180">
+                      {/* Panel 2: Back face */}
+                      <div className="w-1/3 h-full flex flex-col items-center justify-center p-2 gap-1 border-r border-dashed border-gray-300">
                         <StickerFace
                           lightningUri={lightningUri}
                           address={generatedAddress}
@@ -339,7 +339,7 @@ const Index = () => {
                   />
                 </div>
 
-                {/* Panel 2: Back face (upside-down) */}
+                {/* Panel 2: Back face */}
                 <div
                   style={{
                     width: '33.333%',
@@ -352,7 +352,6 @@ const Index = () => {
                     gap: '0.06in',
                     boxSizing: 'border-box',
                     borderRight: '1px dashed #ccc',
-                    transform: 'rotate(180deg)',
                   }}
                 >
                   <StickerFace
