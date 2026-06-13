@@ -130,6 +130,17 @@ const Index = () => {
             <p className="text-xs text-muted-foreground mt-2">
               Enter your Lightning address (e.g. name@walletofsatoshi.com)
             </p>
+
+            {/* Embedded tutorial video */}
+            <div className="mt-4 rounded-xl overflow-hidden aspect-video">
+              <iframe
+                src="https://www.youtube.com/embed/hmjzG8rVvV0"
+                title="Lightning Address Tutorial"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="w-full h-full border-0"
+              />
+            </div>
           </div>
 
           {/* Previews */}
