@@ -11,8 +11,8 @@ cd "$(dirname "$0")/.."
 
 PACKAGE="${PACKAGE:-com.marc26z.tipjar}"
 NAME="${NAME:-Lightning Tip Jar}"
-VERSION_CODE="${VERSION_CODE:-1}"
-VERSION_NAME="${VERSION_NAME:-1.0.0}"
+VERSION_CODE="${VERSION_CODE:-2}"
+VERSION_NAME="${VERSION_NAME:-1.0.1}"
 KEYSTORE="${KEYSTORE:-keystore.p12}"
 OUT="${OUT:-dist/tipjar.apk}"
 
