@@ -33,3 +33,9 @@ yarn.lock
 .env
 .env.*
 !.env.example
+
+# Android signing / build artifacts
+*.apk
+*.p12
+*.pem
+*.jks

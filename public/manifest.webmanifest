@@ -1,0 +1,17 @@
+{
+  "name": "Lightning Tip Jar",
+  "short_name": "Tip Jar",
+  "description": "Generate a printable sticker or tri-fold table sign with a QR code for your Lightning address.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fffbeb",
+  "theme_color": "#f59e0b",
+  "icons": [
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
