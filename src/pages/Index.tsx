@@ -51,7 +51,7 @@ function StickerFace({ lightningUri, address, qrSize, imgWidth, badgeWidth, font
 
 const Index = () => {
   useSeoMeta({
-    title: '⚡ Lightning Tip Jar — Sticker & Sign Generator',
+    title: '⚡ Bitcoin Tip Jar — Sticker & Sign Generator',
     description: 'Generate a printable 3x3 sticker or tri-fold table sign with a QR code for your Lightning address. Stick it on a tip jar and start receiving zaps!',
   });
 
