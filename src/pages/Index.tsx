@@ -1,18 +1,14 @@
 import { useSeoMeta } from '@unhead/react';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { QRCodeCanvas } from '@/components/ui/qrcode';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Loader2, Printer, Zap, Sticker, TriangleAlert, X } from 'lucide-react';
-import { toast } from '@/hooks/useToast';
+import { Printer, Zap, Sticker, TriangleAlert, X } from 'lucide-react';
 import {
   BITCOIN_BADGE,
   TIPJAR_IMAGE,
   isWebViewApp,
-  renderStickerPng,
-  renderTrifoldPng,
-  saveArtwork,
 } from '@/lib/tipjarArtwork';
 
 type PrintMode = 'sticker' | 'trifold';
@@ -33,7 +29,6 @@ function StickerFace({ lightningUri, address, qrSize, imgWidth, badgeWidth, font
         alt="Tip Jar"
         className="object-contain shrink-0"
         style={{ width: imgWidth }}
-        crossOrigin="anonymous"
       />
       <div className="flex-1 flex items-center justify-center">
         <QRCodeCanvas value={lightningUri} size={qrSize} level="M" />
@@ -43,7 +38,6 @@ function StickerFace({ lightningUri, address, qrSize, imgWidth, badgeWidth, font
         alt="Bitcoin Lightning Accepted Here"
         className="object-contain shrink-0"
         style={{ width: badgeWidth }}
-        crossOrigin="anonymous"
       />
       <p
         className="font-mono leading-none truncate max-w-full shrink-0"
@@ -52,6 +46,30 @@ function StickerFace({ lightningUri, address, qrSize, imgWidth, badgeWidth, font
         {address}
       </p>
     </>
+  );
+}
+
+/** One full-width, screenshot-friendly face used by the in-app artwork view. */
+function InAppFace({ lightningUri, address }: { lightningUri: string; address: string }) {
+  return (
+    <div className="w-full aspect-square bg-white flex flex-col items-center justify-center gap-[2%] p-[5%] overflow-hidden">
+      <img src={TIPJAR_IMAGE} alt="Tip Jar" className="w-[78%] h-auto object-contain" />
+      {/* The qrcode lib writes inline pixel sizes on the canvas, hence the important modifiers. */}
+      <div className="w-[52%]">
+        <QRCodeCanvas value={lightningUri} size={512} level="M" className="block w-full! h-auto!" />
+      </div>
+      <img
+        src={BITCOIN_BADGE}
+        alt="Bitcoin Lightning Accepted Here"
+        className="w-[66%] h-auto object-contain"
+      />
+      <p
+        className="font-mono leading-none truncate max-w-full text-[#666]"
+        style={{ fontSize: 'clamp(9px, 3vw, 14px)', letterSpacing: '-0.02em' }}
+      >
+        {address}
+      </p>
+    </div>
   );
 }
 
@@ -64,8 +82,8 @@ const Index = () => {
   const [address, setAddress] = useState('');
   const [generatedAddress, setGeneratedAddress] = useState('');
   const [printMode, setPrintMode] = useState<PrintMode>('sticker');
-  const [artwork, setArtwork] = useState<{ url: string; filename: string; blob: Blob } | null>(null);
-  const [preparing, setPreparing] = useState(false);
+  const [showInAppArtwork, setShowInAppArtwork] = useState(false);
+  const [cleanView, setCleanView] = useState(false);
 
   const lightningUri = generatedAddress ? `lightning:${generatedAddress}` : '';
 
@@ -82,29 +100,11 @@ const Index = () => {
     }
   }, [handleGenerate]);
 
-  const handlePrint = useCallback(async () => {
+  const handlePrint = useCallback(() => {
     // Inside the packaged Android app (a bare system WebView) `window.print()`
-    // is a no-op, so render the artwork to an image the user can save instead.
+    // does nothing, so show the artwork full screen to screenshot instead.
     if (isWebViewApp()) {
-      if (!generatedAddress) return;
-      setPreparing(true);
-      try {
-        const blob = printMode === 'sticker'
-          ? await renderStickerPng({ address: generatedAddress, lightningUri })
-          : await renderTrifoldPng({ address: generatedAddress, lightningUri });
-        const filename = printMode === 'sticker' ? 'lightning-tip-jar-sticker.png' : 'lightning-tip-jar-sign.png';
-        setArtwork({ url: URL.createObjectURL(blob), filename, blob });
-        await saveArtwork(blob, filename);
-      } catch (error) {
-        console.error('Failed to render printable artwork:', error);
-        toast({
-          variant: 'destructive',
-          title: 'Could not create the image',
-          description: 'Check your connection and try again.',
-        });
-      } finally {
-        setPreparing(false);
-      }
+      setShowInAppArtwork(true);
       return;
     }
 
@@ -119,14 +119,22 @@ const Index = () => {
     document.head.appendChild(style);
     window.print();
     document.head.removeChild(style);
-  }, [printMode, generatedAddress, lightningUri]);
+  }, [printMode]);
 
   const closeArtwork = useCallback(() => {
-    setArtwork((current) => {
-      if (current) URL.revokeObjectURL(current.url);
-      return null;
-    });
+    setShowInAppArtwork(false);
+    setCleanView(false);
   }, []);
+
+  // Let Escape dismiss the in-app artwork view.
+  useEffect(() => {
+    if (!showInAppArtwork) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeArtwork();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [showInAppArtwork, closeArtwork]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-50 dark:from-gray-950 dark:to-gray-900">
@@ -216,11 +224,10 @@ const Index = () => {
 
                   <Button
                     onClick={handlePrint}
-                    disabled={preparing}
                     size="lg"
                     className="rounded-xl bg-gray-900 hover:bg-gray-800 dark:bg-gray-100 dark:hover:bg-gray-200 dark:text-gray-900 text-white font-semibold text-base px-8 shadow-lg"
                   >
-                    {preparing ? <Loader2 className="size-5 animate-spin" /> : <Printer className="size-5" />}
+                    <Printer className="size-5" />
                     Print Sticker
                   </Button>
                   <p className="text-xs text-muted-foreground text-center max-w-xs">
@@ -280,11 +287,10 @@ const Index = () => {
 
                   <Button
                     onClick={handlePrint}
-                    disabled={preparing}
                     size="lg"
                     className="rounded-xl bg-gray-900 hover:bg-gray-800 dark:bg-gray-100 dark:hover:bg-gray-200 dark:text-gray-900 text-white font-semibold text-base px-8 shadow-lg"
                   >
-                    {preparing ? <Loader2 className="size-5 animate-spin" /> : <Printer className="size-5" />}
+                    <Printer className="size-5" />
                     Print Tri-Fold Sign
                   </Button>
                   <p className="text-xs text-muted-foreground text-center max-w-xs">
@@ -449,48 +455,71 @@ const Index = () => {
         </>
       )}
 
-      {/* ===== IN-APP ARTWORK PREVIEW (was printing is unavailable) ===== */}
-      {artwork && (
-        <div className="print:hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md flex flex-col items-center gap-4 p-5">
-            <div className="flex items-center justify-between w-full">
-              <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">
-                {printMode === 'sticker' ? 'Your Sticker' : 'Your Tri-Fold Sign'}
-              </h2>
+      {/* ===== IN-APP ARTWORK VIEW (Android app: window.print() does nothing there) ===== */}
+      {showInAppArtwork && generatedAddress && (
+        <div
+          className="print:hidden fixed inset-0 z-50 overflow-y-auto bg-white"
+          role="dialog"
+          aria-modal="true"
+          aria-label={printMode === 'sticker' ? 'Your sticker' : 'Your tri-fold sign'}
+        >
+          {!cleanView && (
+            <div className="sticky top-0 z-10 bg-white/95 backdrop-blur border-b border-gray-200 p-4 space-y-3">
+              <div className="flex items-center justify-between gap-3">
+                <h2 className="text-base font-semibold text-gray-900">
+                  {printMode === 'sticker' ? 'Your Sticker' : 'Your Tri-Fold Sign'}
+                </h2>
+                <Button
+                  onClick={closeArtwork}
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Close"
+                  className="rounded-full text-gray-600 hover:text-gray-900"
+                >
+                  <X className="size-5" />
+                </Button>
+              </div>
+              <p className="text-sm text-gray-600">
+                Printing isn&apos;t available inside the app. Tap <strong>Clean view</strong>, take a
+                screenshot, then print it from your photo gallery
+                {printMode === 'sticker'
+                  ? ' at 3 × 3 in (7.6 cm) on sticker paper.'
+                  : ', one screenshot per panel. Print the QR panel twice, cut, fold and tape.'}
+              </p>
               <Button
-                onClick={closeArtwork}
-                variant="ghost"
-                size="icon"
-                aria-label="Close preview"
-                className="rounded-full text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+                onClick={() => setCleanView(true)}
+                className="w-full rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-semibold"
               >
-                <X className="size-5" />
+                Clean view (for screenshot)
               </Button>
             </div>
+          )}
 
-            <img
-              src={artwork.url}
-              alt="Printable tip jar artwork"
-              className="w-full max-h-[55vh] object-contain rounded-lg border border-gray-200 bg-white"
-            />
+          <div
+            className="mx-auto w-full max-w-md"
+            onClick={() => cleanView && setCleanView(false)}
+          >
+            <InAppFace lightningUri={lightningUri} address={generatedAddress} />
 
-            <p className="text-xs text-center text-gray-600 dark:text-gray-400">
-              Printing isn't available inside the app. Long-press the image to save it, or take a
-              screenshot, then print it from your photos.
-            </p>
-
-            <div className="flex gap-3 w-full">
-              <Button onClick={closeArtwork} variant="outline" className="flex-1 rounded-xl">
-                Close
-              </Button>
-              <Button
-                onClick={() => saveArtwork(artwork.blob, artwork.filename)}
-                className="flex-1 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-semibold"
-              >
-                Save / Share
-              </Button>
-            </div>
+            {printMode === 'trifold' && (
+              <>
+                <div className="border-t-2 border-dashed border-gray-300" />
+                <InAppFace lightningUri={lightningUri} address={generatedAddress} />
+                <div className="border-t-2 border-dashed border-gray-300" />
+                <div className="w-full aspect-square bg-gray-50 flex items-center justify-center">
+                  <p className="text-sm text-gray-400 font-semibold uppercase tracking-widest">
+                    ↓ Fold &amp; tuck under ↓
+                  </p>
+                </div>
+              </>
+            )}
           </div>
+
+          {cleanView && (
+            <p className="fixed bottom-2 inset-x-0 text-center text-[11px] text-gray-400 pointer-events-none">
+              Tap anywhere to show controls
+            </p>
+          )}
         </div>
       )}
     </div>
