@@ -215,15 +215,15 @@
 
   /* QR canvas inside sticker */
   .print-sticker canvas {
-    width: 1.6in !important;
-    height: 1.6in !important;
+    width: 1.25in !important;
+    height: 1.25in !important;
     image-rendering: pixelated;
   }
 
   /* QR canvas inside tri-fold panels */
   .print-trifold canvas {
-    width: 1.5in !important;
-    height: 1.5in !important;
+    width: 1.4in !important;
+    height: 1.4in !important;
     image-rendering: pixelated;
   }
 }
